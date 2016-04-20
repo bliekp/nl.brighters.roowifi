@@ -1,0 +1,90 @@
+{
+    "id": "nl.brighters.roowifi",
+    "name": {
+        "en": "RooWiFi"
+    },
+    "version": "0.0.1",
+    "compatibility": "0.x",
+    "author": {
+        "name": "Pim Bliek",
+        "email": "pim@pimbliek.nl"
+    },
+    "description": {
+	"en": "This App enables you to use your RooWifi module on your Roomba vacuumcleaner. You can let it clean, dock and see it's charging status.",
+	"nl": "Met deze App kun je je Roowifi module op je Roomba stofzuiger aansturen. Je kunt de Roomba laten schoonmaken, docken en de oplaadstatus zien."
+    },
+    "permissions": [
+	"homey:manager:speech-output"
+    ],
+    "speech": [
+	{
+		"id": "clean",
+		"importance": 1,
+		"triggers": {
+       		    	"en": [ "clean" ],
+           		"nl": [ "schoonmaken" ]
+		}
+	},
+        {
+        	"id": "dock",
+        	"importance": 0.9,
+        	"triggers": {
+           		"en": [ "dock" ],
+           		"nl": [ "dock" ]
+        	}
+	}
+     ],
+
+    "drivers": [
+        {
+            "id": "roowifi", 
+            "name": { 
+                "en": "RooWifi Driver",
+                "nl": "RooWifi Driver"
+		},
+            "images": { 
+                "large": "assets/drivers/roowifi/large.jpg", 
+                "small": "assets/drivers/roowifi/small.jpg"
+            },
+            "class": "vacuumcleaner",
+            "capabilities": [ "vacuumcleaner_state" ],
+	    "pair": [
+                {
+                    "id": "start" 
+                },
+                {
+                    "id": "list_my_devices",
+                    "template": "list_devices", 
+                    "navigation": {
+                        "next": "add_my_devices" 
+                    }
+                },
+                {
+                    "id": "add_my_devices",
+                    "template": "add_devices" 
+                }
+            ],
+	    "settings": [
+                {
+                    "type": "group",
+                    "label": {
+                        "en": "General settings",
+                        "nl": "Algemene instellingen"
+                    },
+                    "children": [
+                        {
+                            "id": "ip",
+                            "type": "text",
+                            "label": {
+                                "en": "IP address of your Roowifi",
+                                "nl": "IP adress van je Roowifi"
+                            },
+                            "value": ""
+                        }
+		    ]
+		}
+	    ]
+        }
+    ]
+}
+

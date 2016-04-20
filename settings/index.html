@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+    <head>
+
+    </head>
+    <body>
+
+        <h1>RooWifi Settings</h1>
+        <p></p>
+
+        <h2></h2>
+        <p>Curabitur sit amet ante tortor. Nullam vel elit tincidunt. </p>
+
+        <fieldset>
+            <legend>Super general settings</legend>
+
+            <div class="field row">
+                <label for="ip">IP Address:</label>
+                <input id="ip" type="text" value="" />
+            </div>
+        </fieldset>
+
+        <button class="right" onclick="save()">Save changes</button>
+
+        <script type="text/javascript">
+        function onHomeyReady(){
+            Homey.ready()
+        }
+
+        function save() {
+            Homey.set('ip', document.getElementById('ip').value);
+        }
+        </script>
+
+    </body>
+</html>

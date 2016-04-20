@@ -1,0 +1,42 @@
+<script type="text/javascript">
+
+Homey.setTitle( __("pair.title_searching") ); // becomes: Searching for devices...
+
+
+
+// front-end
+Homey.emit( 'start', { 'foo': 'bar' }, function( err, result ){
+    console.log(result); // result is Started!
+});
+
+// back-end
+socket.on('start', function( data, callback ) {
+    // data = { 'foo': 'bar' }
+    callback( null, 'Started!' );
+});
+
+// front-end
+Homey.on('hello', function( message, callback ){
+    alert( message ); // Hello to you!
+    callback( null, 'Hi!' ) // send something back, (err, result) style
+});
+
+// back-end
+socket.emit('hello', 'Hello to you!', function( err, result ){
+    console.log( result ) // Hi!
+});
+
+Homey.addDevice({
+    data: { // this data object is saved to- and unique for the device. It is passed on the get and set functions as 1st argument
+        id: 'ab:cd:ef' // something unique, so your driver knows which physical device it is. A MAC address or Node ID, for example. This is required
+    },
+    name: name // the name for this device (optional),
+    settings: { 'foo': 'bar' } // initial settings (optional)
+}, function( err, result ){
+    if( err ) return console.error(err);
+    console.log( result);
+});
+
+Homey.done();
+
+</script>
