@@ -1,0 +1,17 @@
+{
+  "name": "nl.brighters.roowifi",
+  "version": "0.0.1",
+  "description": "This app connects Homey with your RooWifi.",
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bliekp/nl.brighters.roowifi.git"
+  },
+  "license": "GPLv3",
+  "bugs": {
+    "url": "https://github.com/bliekp/nl.brighters.roowifi/issues"
+  },
+  "homepage": "https://github.com/bliekp/nl.brighters.roowifi#readme",
+  "dependencies": {
+  }
+}

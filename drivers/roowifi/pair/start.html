@@ -1,42 +1,118 @@
-<script type="text/javascript">
+<script>
 
-Homey.setTitle( __("pair.title_searching") ); // becomes: Searching for devices...
+Homey.setTitle( __('pair.start.title') );
 
+Homey.on('error', function( errortype, callback ){
+	if (errortype == 'error') {
+		Homey.alert(__('pair.start.error'), 'error');
+		Homey.done();
+	}
+	if (errortype == 'nosettings') {
+		Homey.alert(__('pair.start.nosettings'), 'error');
+		Homey.done();
+	}
+})
 
+Homey.on('continue', function( success, callback ){
+		Homey.showView('list_devices');
+})
 
-// front-end
-Homey.emit( 'start', { 'foo': 'bar' }, function( err, result ){
-    console.log(result); // result is Started!
-});
+function saveSettings () {
+	// variables
+	var inputIPAddress = document.getElementById( 'ipAddress' ).value;
+	var inputUserName = document.getElementById( 'userName' ).value;
+	var inputPassWord = document.getElementById( 'passWord' ).value;
 
-// back-end
-socket.on('start', function( data, callback ) {
-    // data = { 'foo': 'bar' }
-    callback( null, 'Started!' );
-});
+	// If required values are filled in
+	// FIXME: should check if this is a real IPv4 address
+	if (inputIPAddress != '' || inputUserName != '' || inputPassWord != '' ) {
+		// Build data array
+		var data = {
+			ipaddress: inputIPAddress,
+			username: inputUserName,
+			password: inputPassWord
+		};
+		// Continue to back-end, pass along data
+		Homey.emit( 'get_devices', data );
+	} else {
+		// Give error, required values
+		Homey.alert(__('pair.start.required'), 'error');
+		Homey.done();
+	}
 
-// front-end
-Homey.on('hello', function( message, callback ){
-    alert( message ); // Hello to you!
-    callback( null, 'Hi!' ) // send something back, (err, result) style
-});
-
-// back-end
-socket.emit('hello', 'Hello to you!', function( err, result ){
-    console.log( result ) // Hi!
-});
-
-Homey.addDevice({
-    data: { // this data object is saved to- and unique for the device. It is passed on the get and set functions as 1st argument
-        id: 'ab:cd:ef' // something unique, so your driver knows which physical device it is. A MAC address or Node ID, for example. This is required
-    },
-    name: name // the name for this device (optional),
-    settings: { 'foo': 'bar' } // initial settings (optional)
-}, function( err, result ){
-    if( err ) return console.error(err);
-    console.log( result);
-});
-
-Homey.done();
-
+}
 </script>
+
+    <p data-i18n="pair.start.intro">enter IP address</p>
+
+		<style>
+			.pairSettings {
+				font-size:16px;
+				border:none;
+			}
+			input {
+				font-size:16px;
+			}
+		</style>
+
+		<table class="pairSettings">
+			<tr>
+				<td style="width:100px;" data-i18n="pair.start.ipAddress">IP</td>
+				<td><input id="ipAddress" type="text" value="" placeholder="192.168.1.123"/></td>
+			</tr>
+		</table>
+
+		<p>
+		&nbsp;
+	  </p>
+
+    <p data-i18n="pair.start.intro">enter username</p>
+
+                <style>
+                        .pairSettings {
+                                font-size:16px;
+                                border:none;
+                        }
+                        input {
+                                font-size:16px;
+                        }
+                </style>
+
+                <table class="pairSettings">
+                        <tr>
+                                <td style="width:100px;" data-i18n="pair.start.userName">Username</td>
+                                <td><input id="userName" type="text" value="" placeholder="admin"/></td>
+                        </tr>
+                </table>
+
+                <p>
+                &nbsp;
+          </p>
+
+    <p data-i18n="pair.start.intro">enter password</p>
+
+                <style>
+                        .pairSettings {
+                                font-size:16px;
+                                border:none;
+                        }
+                        input {
+                                font-size:16px;
+                        }
+                </style>
+
+                <table class="pairSettings">
+                        <tr>
+                                <td style="width:100px;" data-i18n="pair.start.passWord">Password</td>
+                                <td><input id="passWord" type="password" value="" placeholder="admin"/></td>
+                        </tr>
+                </table>
+
+                <p>
+                &nbsp;
+          </p>
+
+
+<fieldset>
+    <button class="button" data-i18n="pair.start.saveSettings" onclick="saveSettings()">Save</button>
+</fieldset>

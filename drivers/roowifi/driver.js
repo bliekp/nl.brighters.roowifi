@@ -1,89 +1,154 @@
+"use strict";
 
-module.exports.init = function( devices_data, callback ) {
+var http = require('http');
+var tempIP = '';
+var tempUN = '';
+var tempPW = '';
 
-    // when the driver starts, Homey rebooted. Initialize all previously paired devices.
-    devices_data.forEach(function(device_data){
-        // do something here to initialize the device, e.g. start a socket connection
-    })
+module.exports.pair = function (socket) {
+	// socket is a direct channel to the front-end
 
-    // let Homey know the driver is ready
-    callback();
-}        
+	// this method is run when Homey.emit('list_devices') is run on the front-end
+	// which happens when you use the template `list_devices`
+	socket.on('list_devices', function (data, callback) {
 
-module.exports.capabilities = {
-    clean: {
+		Homey.log("RooWifi app - list_devices tempIP is " + tempIP);
+		Homey.log("RooWifi app - list_devices tempUN is " + tempUN);
+		Homey.log("RooWifi app - list_devices tempPW is " + tempPW);
 
-        // this function is called by Homey when it wants to GET the dim state, e.g. when the user loads the smartphone interface
-        // `device_data` is the object as saved during pairing
-        // `callback` should return the current value in the format callback( err, value )
-        get: function( device_data, callback ){
+		var devices = [{
+			data: {
+				id		: tempIP,
+				ipaddress 	: tempIP,
+				username	: tempUN,
+				password	: tempPW
+			}
+		}];
 
-            // send the value to Homey
-            if( typeof callback == 'function' ) {
-                callback( null, bulb.state.dim );
-            }
-        },
+		callback (null, devices);
 
-        // this function is called by Homey when it wants to SET the dim state, e.g. when the user says 'red lights'
-        // `device_data` is the object as saved during pairing
-        // `dim` is the new value
-        // `callback` should return the new value in the format callback( err, value )
-        set: function( device_data, callback ) {
-            // send the new value to Homey
-            if( typeof callback == 'function' ) {
-                callback( null, bulb.state.dim );
-            }
-        }
-    }
-    dock: {
-        // this function is called by Homey when it wants to GET the dim state, e.g. when the user loads the smartphone interface
-        // `device_data` is the object as saved during pairing
-        // `callback` should return the current value in the format callback( err, value )
-        get: function( device_data, callback ){
+	});
 
-            // send the value to Homey
-            if( typeof callback == 'function' ) {
-                callback( null, bulb.state.dim );
-            }
-        },
+	// this is called when the user presses save settings button in start.html
+	socket.on('get_devices', function (data, callback) {
 
-        // this function is called by Homey when it wants to SET the dim state, e.g. when the user says 'red lights'
-        // `device_data` is the object as saved during pairing
-        // `dim` is the new value
-        // `callback` should return the new value in the format callback( err, value )
-        set: function( device_data, callback ) {
-            // send the new value to Homey
-            if( typeof callback == 'function' ) {
-                callback( null, bulb.state.dim );
-            }
-        }
-    }
+		// Set passed pair settings in variables
+		tempIP = data.ipaddress;
+		tempUN = data.username;
+		tempPW = data.password;
+		Homey.log ( "RooWifi app - YES! got get_devices from front-end, tempIP =" + tempIP + ", tempUN = " + tempUN + ", tempPW = " + tempPW );
+
+		// assume IP is OK and continue
+		socket.emit ('continue', null);
+
+	});
+
+	socket.on('disconnect', function(){
+		Homey.log("RooWifi app - User aborted pairing, or pairing is finished");
+	})
+}
+
+// flow action handlers
+
+Homey.manager('flow').on('action.start', function( callback, args ){
+	sendCommand('CLEAN', args.device.ipaddress, username, password, callback);
+});
+
+
+Homey.manager('flow').on('action.gohome', function( callback, args ){
+	sendCommand('DOCK', args.device.ipaddress, username, password, callback);
+});
+
+
+Homey.manager('flow').on('action.spot', function( callback, args ){
+	sendCommand('SPOT' + args.mode + '%22%7d%7d', args.device.ipaddress, callback);
+});
+
+
+// CONDITIONS:
+
+Homey.manager('flow').on('condition.cleaning', function(callback, args){
+	getStatus('JSON_ROBOT_STATE="WORKING"', args.device.ipaddress, callback);
+});
+
+Homey.manager('flow').on('condition.reachable', function(callback, args){
+	getStatus('JSON_ROBOT_STATE', args.device.ipaddress, callback);
+});
+
+Homey.manager('flow').on('condition.charging', function( callback, args ){
+	getStatus('JSON_ROBOT_STATE="CHARGING"', args.device.ipaddress, callback);
+});
+
+Homey.manager('flow').on('condition.pause', function( callback, args ){
+	getStatus('JSON_ROBOT_STATE="PAUSE"', args.device.ipaddress, callback);
+});
+
+Homey.manager('flow').on('condition.homing', function( callback, args ){
+	getStatus('JSON_ROBOT_STATE="HOMING"', args.device.ipaddress, callback);
+});
+
+Homey.manager('flow').on('condition.docking', function( callback, args ){
+	getStatus('JSON_ROBOT_STATE="DOCKING"', args.device.ipaddress, callback);
+});
+//
+
+function sendCommand (cmd, hostIP, userName, passWord, callback) {
+
+	Homey.log ("RooWifi app - sending " + cmd + " to " + hostIP);
+
+	http.get({
+		  hostname: hostIP,
+		  port: 80,
+		  path: '/roomba.cgi?' + cmd,
+		  agent: false
+		}, function(res){
+		var body = '';
+	  res.on('data', function(chunk) {
+	    body += chunk;
+	    Homey.log("Got data: " + chunk);
+	  });
+	  res.on('end', function() {
+	    Homey.log(body);
+	    callback(null, true);
+	  });
+	}).on('error', function(e) {
+	  Homey.log("Got error: " + e.message);
+	  callback(null, false);
+	});
+
+	Homey.log("done");
 
 }
 
-module.exports.renamed = function( device_data, new_name ) {
-    // run when the user has renamed the device in Homey.
-    // It is recommended to synchronize a device's name, so the user is not confused
-    // when it uses another remote to control that device (e.g. the manufacturer's app).
-}
+function getStatus (cmd, hostIP, userName, passWord, callback) {
 
-module.exports.deleted = function( device_data ) {
-    // run when the user has deleted the device from Homey
-}
+	Homey.log ("RooWifi app - get roomba.json and compare it to " + cmd + " on " + hostIP);
 
-module.exports.settings = function( device_data, newSettingsObj, oldSettingsObj, changedKeysArr, callback ) {
-    // see settings
+	http.get({
+		  hostname: hostIP,
+		  port: 80,
+		  path: '/roomba.json',
+		  agent: false
+		}, function(res){
+		var body = '';
+	  res.on('data', function(chunk) {
+	    body += chunk;
+	    Homey.log("Got data: " + chunk);
+	  });
+	  res.on('end', function() {
+	    Homey.log(body);
 
-}
+	    if (body.indexOf(cmd) >= 0) {
+		    callback(null, true);
+		} else {
+			callback(null, false);
+		}
+	  });
+	}).on('error', function(e) {
+	  Homey.log("Got error: " + e.message);
+	  callback(null, false);
+	});
 
-module.exports.settings = function( device_data, newSettingsObj, oldSettingsObj, changedKeysArr, callback ) {
-    // run when the user has changed the device's settings in Homey.
-    // changedKeysArr contains an array of keys that have been changed, for your convenience :)
-
-    // always fire the callback, or the settings won't change!
-    // if the settings must not be saved for whatever reason:
-    // callback( "Your error message", null );
-    // else
-    callback( null, true );
+	Homey.log("done");
 
 }

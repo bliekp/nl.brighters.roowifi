@@ -16,75 +16,94 @@
     "permissions": [
 	"homey:manager:speech-output"
     ],
-    "speech": [
-	{
-		"id": "clean",
-		"importance": 1,
-		"triggers": {
-       		    	"en": [ "clean" ],
-           		"nl": [ "schoonmaken" ]
-		}
-	},
-        {
-        	"id": "dock",
-        	"importance": 0.9,
-        	"triggers": {
-           		"en": [ "dock" ],
-           		"nl": [ "dock" ]
-        	}
-	}
-     ],
 
     "drivers": [
         {
-            "id": "roowifi", 
-            "name": { 
+            "id": "roowifi",
+            "name": {
                 "en": "RooWifi Driver",
                 "nl": "RooWifi Driver"
 		},
-            "images": { 
-                "large": "assets/drivers/roowifi/large.jpg", 
+            "images": {
+                "large": "assets/drivers/roowifi/large.jpg",
                 "small": "assets/drivers/roowifi/small.jpg"
             },
-            "class": "vacuumcleaner",
-            "capabilities": [ "vacuumcleaner_state" ],
+            "class": "other",
+	    "capabilities": [ "" ],
 	    "pair": [
-                {
-                    "id": "start" 
+		{
+			                    "id": "start"
                 },
                 {
-                    "id": "list_my_devices",
-                    "template": "list_devices", 
+                    "id": "list_devices",
+                    "template": "list_devices",
                     "navigation": {
-                        "next": "add_my_devices" 
+                        "next": "add_cleaner"
                     }
                 },
                 {
-                    "id": "add_my_devices",
-                    "template": "add_devices" 
+                    "id": "add_cleaner",
+                    "template": "add_devices"
                 }
-            ],
-	    "settings": [
-                {
-                    "type": "group",
-                    "label": {
-                        "en": "General settings",
-                        "nl": "Algemene instellingen"
-                    },
-                    "children": [
-                        {
-                            "id": "ip",
-                            "type": "text",
-                            "label": {
-                                "en": "IP address of your Roowifi",
-                                "nl": "IP adress van je Roowifi"
-                            },
-                            "value": ""
-                        }
-		    ]
-		}
-	    ]
+            ]
         }
-    ]
+    ],
+	"flow": {
+        "actions": [
+        {
+            "id": "start",
+            "title": {
+                "en": "Start cleaning",
+                "nl": "Stofzuigen starten"
+            },
+            "args": [
+	              {
+	                "name": "device",
+	                "type": "device",
+	                "placeholder": {
+	                  "en": "Select vacuum cleaner",
+	                  "nl": "Selecteer stofzuiger"
+	                },
+	                "filter": "driver_id=vacuum"
+	              }
+	        ]
+        },
+	       {
+            "id": "Spot",
+            "title": {
+                "en": "Spot cleaning",
+                "nl": "Spot schoonmaken"
+            },
+            "args": [
+	              {
+	                "name": "device",
+	                "type": "device",
+	                "placeholder": {
+	                  "en": "Select vacuum cleaner",
+	                  "nl": "Selecteer stofzuiger"
+	                },
+	                "filter": "driver_id=vacuum"
+	              }
+	        ]
+        },
+        {
+            "id": "gohome",
+            "title": {
+                "en": "Return to dock",
+                "nl": "Terug naar laadstation"
+            },
+            "args": [
+	              {
+	                "name": "device",
+	                "type": "device",
+	                "placeholder": {
+	                  "en": "Select vacuum cleaner",
+	                  "nl": "Selecteer stofzuiger"
+	                },
+	                "filter": "driver_id=vacuum"
+	              }
+	        ]
+        }
+	   ]
+  }
 }
-
