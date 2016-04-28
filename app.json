@@ -64,7 +64,7 @@
 	                  "en": "Select vacuum cleaner",
 	                  "nl": "Selecteer stofzuiger"
 	                },
-	                "filter": "driver_id=vacuum"
+	                "filter": "driver_id=roowifi"
 	              }
 	        ]
         },
@@ -82,7 +82,7 @@
 	                  "en": "Select vacuum cleaner",
 	                  "nl": "Selecteer stofzuiger"
 	                },
-	                "filter": "driver_id=vacuum"
+	                "filter": "driver_id=roowifi"
 	              }
 	        ]
         },
@@ -100,7 +100,7 @@
 	                  "en": "Select vacuum cleaner",
 	                  "nl": "Selecteer stofzuiger"
 	                },
-	                "filter": "driver_id=vacuum"
+	                "filter": "driver_id=roowifi"
 	              }
 	        ]
         }
